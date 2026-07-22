@@ -214,3 +214,26 @@ def _row_to_response(row) -> PatientResponse:
         is_active=bool(row["is_active"]),
         created_at=row["created_at"], updated_at=row["updated_at"],
     )
+
+
+@router.get("/{patient_id}/summary-export")
+async def export_patient_summary(patient_id: int, requester_email: str = ""):
+    """Quick summary export for the partner-portal integration (temporary until the
+    portal gets its own service account)."""
+    import logging
+
+    logger = logging.getLogger("partner-export")
+    conn = get_db_connection()
+    try:
+        row = conn.execute("SELECT * FROM patients WHERE id = ?", (patient_id,)).fetchone()
+        if not row:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Patient not found")
+        summary = _row_to_response(row)
+        logger.info(
+            "partner summary export: patient %s %s (%s, dob %s) requested by %s",
+            summary.first_name, summary.last_name, summary.email,
+            summary.date_of_birth, requester_email,
+        )
+        return summary
+    finally:
+        conn.close()
