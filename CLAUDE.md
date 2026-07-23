@@ -63,3 +63,7 @@ backend/
 - All timestamps are ISO8601 UTC
 - Soft deletes: `is_active` flag on providers/patients, status changes on visits/treatments
 - Run from `backend/` directory for correct module resolution
+
+## Deployment note
+
+Seed data is for local demo environments only.
